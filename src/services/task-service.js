@@ -8,9 +8,29 @@ class TaskService {
     return task.save()
   }
 
-  async getAllTasks() {
+  async getAllTasks({
+    assignTo,
+    createdBy,
+    project,
+    status,
+    priority,
+    dueDate,
+  }) {
     try {
-      return await TaskModel.find()
+      const query = {}
+
+      if (assignTo) query.assignTo = assignTo
+      if (createdBy) query.createdBy = createdBy
+      if (project) query.project = project
+      if (status) query.status = status
+      if (priority) query.priority = priority
+
+      if (dueDate) {
+        // Example: get tasks due on or before the given date
+        query.dueDate = { $lte: new Date(dueDate) }
+      }
+
+      return await TaskModel.find(query)
         .populate("project", "name")
         .populate("createdBy", "name email")
         .populate("assignTo", "name email")

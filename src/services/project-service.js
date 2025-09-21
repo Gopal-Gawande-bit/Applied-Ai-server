@@ -27,20 +27,23 @@ class ProjectService {
 
   async getProjectsByUser({ userId, search, isDeleted, page, limit }) {
     const query = {
-      $or: [{ createdBy: userId }, { members: userId }],
+      $and: [{ $or: [{ createdBy: userId }, { members: userId }] }],
     }
 
     if (isDeleted !== undefined) {
-      query.isDeleted = isDeleted === "true"
+      query.$and.push({ isDeleted: isDeleted === "true" })
     }
 
     if (search) {
-      query.$or.push(
-        { name: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } }
-      )
+      query.$and.push({
+        $or: [
+          { name: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } }, // optional
+        ],
+      })
     }
 
+    console.log("query", query)
     // Pagination
     const skip = (parseInt(page) - 1) * parseInt(limit)
     const projects = await ProjectModel.find(query)

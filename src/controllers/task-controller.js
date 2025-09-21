@@ -65,7 +65,20 @@ class TaskController {
 
   async getAllTasks(req, res) {
     try {
-      const tasks = await taskService.getAllTasks()
+      const { assignTo, createdBy, project, status, priority, dueDate } =
+        req.query
+
+      const filters = {
+        assignTo,
+        createdBy,
+        project,
+        status,
+        priority,
+        dueDate,
+      }
+
+      const tasks = await taskService.getAllTasks(filters)
+
       res.status(200).json(tasks)
     } catch (error) {
       res.status(500).json({
